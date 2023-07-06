@@ -22,6 +22,7 @@ where
         coefficients: Vector<float<T>, S1>,
         base_points: Option<Vector<float<T>, S2>>,
     ) -> Self {
+        assert!(!coefficients.is_empty());
         assert!(degree + 1 == coefficients.len());
         assert!(base_points.is_none() || base_points.as_ref().unwrap().len() == degree);
         Self {
@@ -29,6 +30,17 @@ where
             coefficients,
             base_points,
         }
+    }
+
+    pub fn from_coefficients(coefficients: Vector<float<T>, S1>) -> Self {
+        Self::new(coefficients.len() - 1, coefficients, None)
+    }
+
+    pub fn from_coefficients_base_points(
+        coefficients: Vector<float<T>, S1>,
+        base_points: Vector<float<T>, S2>,
+    ) -> Self {
+        Self::new(coefficients.len() - 1, coefficients, Some(base_points))
     }
 
     pub fn nest_mul(&self, x: float<T>) -> float<T> {
@@ -40,7 +52,7 @@ where
                 y = y * (x - b[i]) + self.coefficients[i];
             }
         } else {
-            for i in (0..=d).rev() {
+            for i in (0..d).rev() {
                 y = y * x + self.coefficients[i];
             }
         }
