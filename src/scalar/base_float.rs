@@ -18,6 +18,8 @@ pub trait BaseFloat:
     fn recip(self) -> Self;
     fn epsilon() -> Self;
     fn abs(self) -> Self;
+    fn max(self, other: Self) -> Self;
+    fn min(self, other: Self) -> Self;
 }
 
 impl BaseFloat for core::primitive::f32 {
@@ -49,6 +51,14 @@ impl BaseFloat for core::primitive::f32 {
     fn abs(self) -> Self {
         f32::abs(self)
     }
+    #[inline]
+    fn max(self, other: Self) -> Self {
+        f32::max(self, other)
+    }
+    #[inline]
+    fn min(self, other: Self) -> Self {
+        f32::min(self, other)
+    }
 }
 
 impl BaseFloat for core::primitive::f64 {
@@ -79,5 +89,13 @@ impl BaseFloat for core::primitive::f64 {
     #[inline]
     fn abs(self) -> Self {
         f64::abs(self)
+    }
+    #[inline]
+    fn max(self, other: Self) -> Self {
+        f64::max(self, other)
+    }
+    #[inline]
+    fn min(self, other: Self) -> Self {
+        f64::min(self, other)
     }
 }

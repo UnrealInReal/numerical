@@ -19,7 +19,7 @@ impl<T: BaseFloat> BisectionSolver<T> {
 }
 
 impl<T: BaseFloat> Dim1Solver<T> for BisectionSolver<T> {
-    fn solve(&self, func: &impl Dim1Func<T>) -> T {
+    fn solve(&self, func: &impl Dim1Func<T>) -> Option<T> {
         let (mut a, mut b) = (self.search_range[0], self.search_range[1]);
         let zero = T::from(0_f32);
 
@@ -41,6 +41,6 @@ impl<T: BaseFloat> Dim1Solver<T> for BisectionSolver<T> {
 
         log::info!("Bisection solve, iteration number = {}", iter_num);
 
-        (b + a) * T::from(0.5)
+        Some((b + a) * T::from(0.5))
     }
 }
