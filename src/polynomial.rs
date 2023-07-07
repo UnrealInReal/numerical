@@ -1,26 +1,26 @@
-use core::ops::Index;
-
 use crate::{
-    scalar::{base_float::BaseFloat, float},
-    tensor::vector::{Len, Vector},
+    dim1_func::Dim1Func,
+    scalar::base_float::BaseFloat,
+    tensor::vector::{Len, VecStorage, Vector},
 };
 
-pub struct Polynomial<T, S1: Len, S2: Len> {
+/// TODO: impl Display for Polynomial (issue: [1](https://github.com/UnrealInReal/numerical/issues/1))
+pub struct Polynomial<T, S1: VecStorage<T>, S2: VecStorage<T>> {
     degree: usize,
     coefficients: Vector<T, S1>,
     base_points: Option<Vector<T, S2>>,
 }
 
-impl<T, S1, S2> Polynomial<float<T>, S1, S2>
+impl<T, S1, S2> Polynomial<T, S1, S2>
 where
-    S1: Index<usize, Output = float<T>> + Len,
-    S2: Index<usize, Output = float<T>> + Len,
-    T: Copy + Clone + BaseFloat,
+    S1: VecStorage<T>,
+    S2: VecStorage<T>,
+    T: BaseFloat,
 {
     pub fn new(
         degree: usize,
-        coefficients: Vector<float<T>, S1>,
-        base_points: Option<Vector<float<T>, S2>>,
+        coefficients: Vector<T, S1>,
+        base_points: Option<Vector<T, S2>>,
     ) -> Self {
         assert!(!coefficients.is_empty());
         assert!(degree + 1 == coefficients.len());
@@ -32,20 +32,20 @@ where
         }
     }
 
-    pub fn from_coefficients(coefficients: Vector<float<T>, S1>) -> Self {
+    pub fn from_coefficients(coefficients: Vector<T, S1>) -> Self {
         Self::new(coefficients.len() - 1, coefficients, None)
     }
 
     pub fn from_coefficients_base_points(
-        coefficients: Vector<float<T>, S1>,
-        base_points: Vector<float<T>, S2>,
+        coefficients: Vector<T, S1>,
+        base_points: Vector<T, S2>,
     ) -> Self {
         Self::new(coefficients.len() - 1, coefficients, Some(base_points))
     }
 
-    pub fn nest_mul(&self, x: float<T>) -> float<T> {
+    pub fn nest_mul(&self, x: T) -> T {
         let d = self.degree;
-        let mut y: float<T> = self.coefficients[d];
+        let mut y: T = self.coefficients[d];
 
         if let Some(b) = &self.base_points {
             for i in (0..d).rev() {
@@ -62,3 +62,14 @@ where
 }
 
 pub type PolynomialInnerVec<T> = Polynomial<T, Vec<T>, Vec<T>>;
+
+impl<T, S1, S2> Dim1Func<T> for Polynomial<T, S1, S2>
+where
+    S1: VecStorage<T>,
+    S2: VecStorage<T>,
+    T: BaseFloat,
+{
+    fn eval(&self, x: T) -> T {
+        self.nest_mul(x)
+    }
+}
