@@ -25,3 +25,13 @@ fn test_bisection_1() {
     assert!((result_a - 1.).abs() < 1e-3, "root a = {}", result_a);
     assert!((result_b - 2.).abs() < 1e-3, "root b = {}", result_b);
 }
+
+#[test]
+fn test_bisection_2() {
+    let _ = env_logger::try_init();
+    let f = PolynomialInnerVec::from_coefficients(Vector::new(vec![-8. / 27., 4. / 3., -2., 1.]));
+    let solver = BisectionSolver::new([0., 2.], 1e-14);
+    let result = solver.solve(&f).unwrap();
+    // large forward error
+    assert!((result - 2. / 3.).abs() > 1e-6, "root b = {}", result);
+}

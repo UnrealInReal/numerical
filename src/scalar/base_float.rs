@@ -10,6 +10,7 @@ pub trait BaseFloat:
     + Sub<Output = Self>
     + Mul<Output = Self>
     + Div<Output = Self>
+    + core::fmt::Debug
 {
     fn add(self, rhs: Self) -> Self;
     fn sub(self, rhs: Self) -> Self;
