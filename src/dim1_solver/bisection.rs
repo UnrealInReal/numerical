@@ -34,7 +34,7 @@ impl<T: BaseFloat> Dim1Solver<T> for BisectionSolver<T> {
             if func.eval(a).signum() != func.eval(c).signum() {
                 b = c;
             } else {
-                assert!(func.eval(b).signum() == func.eval(c).signum());
+                debug_assert!(func.eval(a).signum() != func.eval(b).signum());
                 a = c;
             }
             iter_num += 1;
