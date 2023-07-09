@@ -21,27 +21,30 @@ impl<T: BaseFloat> BisectionSolver<T> {
 impl<T: BaseFloat> Dim1Solver<T> for BisectionSolver<T> {
     fn solve(&self, func: &impl Dim1Func<T>) -> Option<T> {
         let (mut a, mut b) = (self.search_range[0], self.search_range[1]);
-        let zero = T::from(0_f32);
 
-        assert!(func.eval(a) * func.eval(b) < zero);
+        assert!(func.eval(a).signum() * func.eval(b).signum() == -T::ONE);
 
         let mut iter_num: usize = 0;
         while (b - a) > T::from(2.) * self.error_tolerance {
-            let c = (b + a) * T::from(0.5);
-            if func.eval(c) == zero {
+            let c = (b + a).half();
+            let yc = func.eval(c);
+
+            if yc == T::ZERO {
                 break;
             }
-            if func.eval(a).signum() != func.eval(c).signum() {
+
+            if func.eval(a).signum() * yc.signum() == -T::ONE {
                 b = c;
             } else {
-                debug_assert!(func.eval(a).signum() != func.eval(b).signum());
+                debug_assert!(func.eval(b).signum() * yc.signum() == -T::ONE);
                 a = c;
             }
+
             iter_num += 1;
         }
 
         log::info!("Bisection solve, iteration number = {}", iter_num);
 
-        Some((b + a) * T::from(0.5))
+        Some((b + a).half())
     }
 }

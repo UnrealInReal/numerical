@@ -25,7 +25,7 @@ impl<T: BaseFloat> Dim1Solver<T> for FixedPointSolver<T> {
         for i in 0..self.max_iter_num {
             let next = func.eval(root) + root;
             let diff = (next - root).abs();
-            let relative_diff = diff / next.abs().max(T::from(1_f32));
+            let relative_diff = diff / next.abs().max(T::ONE);
             root = next;
             if relative_diff < self.error_tolerance {
                 log::info!("Fixed Point Iteration Num = {i:?}");

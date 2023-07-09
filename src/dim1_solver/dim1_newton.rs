@@ -35,9 +35,9 @@ impl<T: BaseFloat> Dim1Solver<T> for Dim1NewtonSolver<'_, T> {
         for i in 0..self.max_iter_num {
             let next = root - self.func.eval(root) / self.func_first_derivative.eval(root);
             let diff = (next - root).abs();
-            let relative_diff = diff / next.abs().max(T::from(1_f32));
+            let relative_diff = diff / next.abs().max(T::ONE);
             root = next;
-            println!("Iter {}, root = {:?}", i, root);
+
             if relative_diff < self.error_tolerance {
                 log::info!("Dim1 Newton Iteration Num = {i:?}");
                 return Some(root);

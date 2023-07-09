@@ -1,4 +1,4 @@
-use core::ops::{Add, Div, Mul, Sub};
+use core::ops::{Add, Div, Mul, Neg, Sub};
 
 pub trait BaseFloat:
     Copy
@@ -10,8 +10,13 @@ pub trait BaseFloat:
     + Sub<Output = Self>
     + Mul<Output = Self>
     + Div<Output = Self>
+    + Neg<Output = Self>
     + core::fmt::Debug
 {
+    const TWO: Self;
+    const ONE: Self;
+    const ZERO: Self;
+
     fn add(self, rhs: Self) -> Self;
     fn sub(self, rhs: Self) -> Self;
     fn mul(self, rhs: Self) -> Self;
@@ -22,9 +27,23 @@ pub trait BaseFloat:
     fn max(self, other: Self) -> Self;
     fn min(self, other: Self) -> Self;
     fn signum(self) -> Self;
+
+    #[inline]
+    fn half(self) -> Self {
+        self * Self::TWO.recip()
+    }
+
+    #[inline]
+    fn double(self) -> Self {
+        self * Self::TWO
+    }
 }
 
 impl BaseFloat for core::primitive::f32 {
+    const ZERO: Self = 0_f32;
+    const ONE: Self = 1_f32;
+    const TWO: Self = 2_f32;
+
     #[inline]
     fn add(self, rhs: Self) -> Self {
         core::ops::Add::add(self, rhs)
@@ -68,6 +87,10 @@ impl BaseFloat for core::primitive::f32 {
 }
 
 impl BaseFloat for core::primitive::f64 {
+    const ZERO: Self = 0_f64;
+    const ONE: Self = 1_f64;
+    const TWO: Self = 2_f64;
+
     #[inline]
     fn add(self, rhs: Self) -> Self {
         core::ops::Add::add(self, rhs)
