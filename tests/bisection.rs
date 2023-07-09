@@ -33,5 +33,5 @@ fn test_bisection_2() {
     let solver = BisectionSolver::new([0., 2.], 1e-14);
     let result = solver.solve(&f).unwrap();
     // large forward error
-    assert!((result - 2. / 3.).abs() > 1e-6, "root b = {}", result);
+    assert!((result - 2. / 3.).abs() > 1e-6, "root = {}", result);
 }

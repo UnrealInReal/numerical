@@ -1,4 +1,5 @@
 pub mod bisection;
+pub mod brent;
 pub mod dim1_newton;
 pub mod fixed_point;
 
