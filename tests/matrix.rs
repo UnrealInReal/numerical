@@ -1,4 +1,4 @@
-use numerical::tensor::matrix::{Matrix, MatrixOps, Shape};
+use numerical::tensor::matrix::{Matrix, MatrixOps, MatrixShape};
 
 #[test]
 fn test_matrix_ops_0() {

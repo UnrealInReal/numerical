@@ -23,9 +23,16 @@ impl From<(usize, usize)> for Index2D {
     }
 }
 
-pub trait Shape {
+pub trait MatrixShape {
     fn row_size(&self) -> usize;
     fn col_size(&self) -> usize;
+    fn square_dimention(&self) -> Option<usize> {
+        if self.row_size() == self.col_size() {
+            Some(self.row_size())
+        } else {
+            None
+        }
+    }
     fn shape(&self) -> Index2D {
         Index2D {
             row: self.row_size(),
@@ -35,7 +42,7 @@ pub trait Shape {
 }
 
 pub trait MatrixOps<T: BaseFloat>:
-    Shape + Index<Index2D, Output = T> + IndexMut<Index2D> + Clone
+    MatrixShape + Index<Index2D, Output = T> + IndexMut<Index2D> + Clone
 {
     fn default_with_shape(shape: Index2D) -> Self;
 
@@ -117,7 +124,7 @@ impl<T, S> Matrix<T, S> {
     }
 }
 
-impl<T, S> Shape for Matrix<T, S> {
+impl<T, S> MatrixShape for Matrix<T, S> {
     fn row_size(&self) -> usize {
         self.shape.row
     }
