@@ -24,8 +24,7 @@ impl<T: BaseFloat> Dim1Solver<T> for BrentSolver<T> {
         let mut xy_pairs = [a, (a + b).half(), b].map(|a| XYPair::new(a, func.eval(a)));
         assert!(
             xy_pairs[0].y.signum() * xy_pairs[2].y.signum() == -T::ONE,
-            "Illegal initial guess: {:?}",
-            xy_pairs
+            "Illegal initial guess: {xy_pairs:?}"
         );
 
         let mut iter_num: usize = 0;
@@ -35,8 +34,8 @@ impl<T: BaseFloat> Dim1Solver<T> for BrentSolver<T> {
             // IQI
             let (mut max_error_index, mut max_error) = (0_usize, xy_pairs[0].y.abs());
 
-            for i in 1..=2_usize {
-                let error = xy_pairs[i].y.abs();
+            for (i, pair) in xy_pairs.iter().enumerate().skip(1) {
+                let error = pair.y.abs();
                 if error > max_error {
                     max_error_index = i;
                     max_error = error;
@@ -60,14 +59,12 @@ impl<T: BaseFloat> Dim1Solver<T> for BrentSolver<T> {
                     } else if max_error_index == 2 && next_x < xy_pairs[1].x {
                         new_interval = xy_pairs[1].x - xy_pairs[0].x;
                         axis_crossed = xy_pairs[0].y.signum() * xy_pairs[1].y.signum() == -T::ONE;
+                    } else if max_error_index == 0 {
+                        new_interval = xy_pairs[2].x - next_x;
+                        axis_crossed = next_y.signum() * xy_pairs[2].y.signum() == -T::ONE;
                     } else {
-                        if max_error_index == 0 {
-                            new_interval = xy_pairs[2].x - next_x;
-                            axis_crossed = next_y.signum() * xy_pairs[2].y.signum() == -T::ONE;
-                        } else {
-                            new_interval = next_x - xy_pairs[0].x;
-                            axis_crossed = next_y.signum() * xy_pairs[0].y.signum() == -T::ONE;
-                        }
+                        new_interval = next_x - xy_pairs[0].x;
+                        axis_crossed = next_y.signum() * xy_pairs[0].y.signum() == -T::ONE;
                     }
 
                     let old_interval = xy_pairs[2].x - xy_pairs[0].x;
@@ -119,37 +116,33 @@ impl<T: BaseFloat> Dim1Solver<T> for BrentSolver<T> {
                 } else {
                     next_x - xy_pairs[1].x
                 }
+            } else if next_y.signum() * xy_pairs[0].y.signum() == T::ONE {
+                xy_pairs[1].x - next_x
             } else {
-                if next_y.signum() * xy_pairs[0].y.signum() == T::ONE {
-                    xy_pairs[1].x - next_x
-                } else {
-                    next_x - xy_pairs[0].x
-                }
+                next_x - xy_pairs[0].x
             };
 
             if next_y == T::ZERO {
                 log::info!("Brent solve, iteration number = {}", iter_num);
                 return Some(next_x);
+            } else if next_y.abs() < xy_pairs[replaced_index].y.abs()
+                && old_interval > new_interval.double()
+            {
+                log::info!("Brent Solver, Method of False Position");
+                xy_pairs[replaced_index] = xy_pairs[1];
+                xy_pairs[1] = XYPair::new(next_x, next_y);
             } else {
-                if next_y.abs() < xy_pairs[replaced_index].y.abs()
-                    && old_interval > new_interval.double()
-                {
-                    log::info!("Brent Solver, Method of False Position");
+                // Bisection
+                log::info!("Brent Solver, Bisection");
+                let other_two_x = [1, 2].map(|i| xy_pairs[(replaced_index + i) % 3].x);
+                let next_x = (other_two_x[0] + other_two_x[1]).half();
+                let next_y = func.eval(next_x);
+                if next_y == T::ZERO {
+                    log::info!("Brent solve, iteration number = {}", iter_num);
+                    return Some(next_y);
+                } else {
                     xy_pairs[replaced_index] = xy_pairs[1];
                     xy_pairs[1] = XYPair::new(next_x, next_y);
-                } else {
-                    // Bisection
-                    log::info!("Brent Solver, Bisection");
-                    let other_two_x = [1, 2].map(|i| xy_pairs[(replaced_index + i) % 3].x);
-                    let next_x = (other_two_x[0] + other_two_x[1]).half();
-                    let next_y = func.eval(next_x);
-                    if next_y == T::ZERO {
-                        log::info!("Brent solve, iteration number = {}", iter_num);
-                        return Some(next_y);
-                    } else {
-                        xy_pairs[replaced_index] = xy_pairs[1];
-                        xy_pairs[1] = XYPair::new(next_x, next_y);
-                    }
                 }
             }
         }

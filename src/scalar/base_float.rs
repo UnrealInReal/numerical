@@ -1,4 +1,5 @@
 use core::ops::{Add, Div, Mul, Neg, Sub};
+use core::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 
 pub trait BaseFloat:
     Copy
@@ -7,9 +8,13 @@ pub trait BaseFloat:
     + PartialOrd
     + From<f32>
     + Add<Output = Self>
+    + AddAssign
     + Sub<Output = Self>
+    + SubAssign
     + Mul<Output = Self>
+    + MulAssign
     + Div<Output = Self>
+    + DivAssign
     + Neg<Output = Self>
     + core::fmt::Debug
 {
